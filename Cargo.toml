@@ -1,17 +1,16 @@
 [package]
-name    = "rust-kafka-client-example"
-version = "0.1.0"
-authors = ["GRECO, FRANK <frank@confluent.io>", "T Kumagai"]
+authors = ["GRECO, FRANK <frank@confluent.io>"]
+build = "build.rs"
 edition = "2018"
-build   = "build.rs"
+name = "rust-kafka-client-example"
+version = "0.1.0"
 
 [dependencies]
+clap = "3.1.8"
 futures = "0.3.21"
-tokio   = "1.17.0"
-clap    = "3.1.8"
+tokio = "1.17.0"
 
-rdkafka = { version = "0.28.0", features = ["cmake-build"] }
-
+rdkafka = {version = "0.28.0", features = ["cmake-build"]}
 
 [[bin]]
 name = "producer"
