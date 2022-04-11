@@ -6,3 +6,13 @@ Produce messages to and consume messages from a Kafka cluster using the [rust-rd
 # Documentation
 
 You can find the documentation and instructions for running this Rust example at [https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/rust.html](https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/rust.html?utm_source=github&utm_medium=demo&utm_campaign=ch.examples_type.community_content.clients-ccloud)
+
+
+
+### examples
+
+
+* upgrade crate clap 
+  - "2.33.0" =>3.1.8"
+  - examples/basic_clap.rs
+  - examples/clap.rs

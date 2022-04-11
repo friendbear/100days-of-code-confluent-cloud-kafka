@@ -6,7 +6,7 @@ name = "rust-kafka-client-example"
 version = "0.1.0"
 
 [dependencies]
-clap = "3.1.8"
+clap = {version = "3.1.8", features = ["derive"]}
 futures = "0.3.21"
 tokio = "1.17.0"
 
