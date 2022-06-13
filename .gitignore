@@ -1,3 +1,5 @@
 /target
 **/*.rs.bk
 day2/apiKey-SMALAXVWPW3EBDGO.txt
+rust/producer-and-consumer/target
+rust/twitter-consumer/target
