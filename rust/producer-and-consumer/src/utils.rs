@@ -1,64 +1,37 @@
-/**
- * Copyright 2020 Confluent Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-use clap::{App, Arg};
-use rdkafka::config::ClientConfig;
-use std::boxed::Box;
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
+use std::io::Write;
+use std::thread;
 
-pub fn get_config() -> Result<(String, ClientConfig), Box<std::error::Error>> {
-    let matches = App::new("rust client example")
-        .version(option_env!("CARGO_PKG_VERSION").unwrap_or(""))
-        .arg(
-            Arg::with_name("config")
-                .help("path to confluent cloud config file")
-                .long("config")
-                .takes_value(true)
-                .required(true),
+use chrono::prelude::*;
+use env_logger::fmt::Formatter;
+use env_logger::Builder;
+use log::{LevelFilter, Record};
+
+pub fn setup_logger(log_thread: bool, rust_log: Option<&str>) {
+    let output_format = move | formatter: &mut Formatter, record: &Record| {
+        let thread_name = if log_thread {
+            format!("(t: {})) ", thread::current().name().unwrap_or("unknown"))
+        } else {
+            "".to_string()
+        };
+
+        let local_time: DateTime<Local> = Local::now();
+        let time_str = local_time.format("%H:%M:%S%.3f").to_string();
+        write!(
+            formatter,
+            "{} {}{} - {} - {} \n",
+            time_str,
+            thread_name,
+            record.level(),
+            record.target(),
+            record.args()
         )
-        .arg(
-            Arg::with_name("topic")
-                .help("test topic to use")
-                .long("topic")
-                .takes_value(true)
-                .required(true),
-        )
-        .get_matches();
+    };
 
-    let mut kafka_config = ClientConfig::new();
+    let mut builder = Builder::new();
+    builder
+        .format(output_format)
+        .filter(None, LevelFilter::Info);
 
-    let file = File::open(matches.value_of("config").ok_or("error parsing config")?)?;
-    for line in BufReader::new(&file).lines() {
-        let cur_line: String = line?.trim().to_string();
-        if cur_line.starts_with('#') || cur_line.len() < 1 {
-            continue;
-        }
-        let key_value: Vec<&str> = cur_line.split("=").collect();
-        kafka_config.set(
-            key_value.get(0).ok_or("malformed key")?,
-            key_value.get(1).ok_or("malformed value")?,
-        );
-    }
-
-    Ok((
-        matches
-            .value_of("topic")
-            .ok_or("error parsing topic")?
-            .to_string(),
-        kafka_config,
-    ))
+    rust_log.map(|conf| builder.parse_filters(conf));
+    builder.init();
 }
